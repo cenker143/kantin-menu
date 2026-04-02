@@ -25,7 +25,6 @@ header {
 }
 .tabs {
   display:flex;
-  overflow:auto;
   gap:10px;
   padding:10px;
 }
@@ -51,8 +50,7 @@ header {
 .card img {
   width:100%;
   height:100px;
-  object-fit:cover;
-  border-radius:8px;
+  object-fit:contain;
 }
 .price {
   color:#0a7f2e;
@@ -76,25 +74,32 @@ BATMAN İL JANDARMA KOMUTANLIĞI AİLE KANTİNİ ÜRÜN FİYAT LİSTESİ
 <div class="tab" onclick="filterCategory('içecek')">İçecek</div>
 <div class="tab" onclick="filterCategory('yiyecek')">Yiyecek</div>
 <div class="tab" onclick="filterCategory('atıştırmalık')">Atıştırmalık</div>
+<div class="tab" onclick="filterCategory('diğer')">Diğer</div>
 </div>
 
 <div class="container" id="urunler"></div>
 
 <script>
-const url = "https://opensheet.elk.sh/1EgBQfRbunhviZC709M9NX292kO3O1qtGbc2Xmoblkxg/1";
+
+const url = "https://opensheet.elk.sh/1EgBQfRbunhviZC709M9NX292kO3O1qtGbc2Xmoblkxg/Sheet1";
 
 let allData = [];
 
 fetch(url)
 .then(res => res.json())
 .then(data => {
-  allData = data.map(item => {
-    let kategori = "diğer";
-    let ad = item["Ürün Adı"].toLowerCase();
 
-    if (ad.includes("cola") || ad.includes("su") || ad.includes("ayran")) kategori = "içecek";
-    else if (ad.includes("tost") || ad.includes("ekmek")) kategori = "yiyecek";
-    else if (ad.includes("cips") || ad.includes("bisküvi")) kategori = "atıştırmalık";
+  allData = data.map(item => {
+
+    let ad = item["Ürün Adı"]?.toLowerCase() || "";
+    let kategori = "diğer";
+
+    if(ad.includes("cola") || ad.includes("su") || ad.includes("ayran"))
+      kategori = "içecek";
+    else if(ad.includes("tost") || ad.includes("ekmek") || ad.includes("sucuk"))
+      kategori = "yiyecek";
+    else if(ad.includes("cips") || ad.includes("bisküvi") || ad.includes("çikolata"))
+      kategori = "atıştırmalık";
 
     return {...item, kategori};
   });
@@ -102,16 +107,30 @@ fetch(url)
   render(allData);
 });
 
+function getImage(name){
+  name = name.toLowerCase();
+
+  if(name.includes("kulak")) return "https://cdn-icons-png.flaticon.com/512/727/727245.png";
+  if(name.includes("power") || name.includes("mah")) return "https://cdn-icons-png.flaticon.com/512/1048/1048946.png";
+  if(name.includes("sucuk")) return "https://cdn-icons-png.flaticon.com/512/1046/1046784.png";
+  if(name.includes("şarj") || name.includes("kablo")) return "https://cdn-icons-png.flaticon.com/512/3659/3659899.png";
+  if(name.includes("cola")) return "https://cdn-icons-png.flaticon.com/512/3050/3050158.png";
+
+  return "https://via.placeholder.com/150";
+}
+
 function render(data){
   let html = "";
+
   data.forEach(item => {
     html += `
     <div class="card">
-      <img src="https://source.unsplash.com/200x200/?${item["Ürün Adı"]}">
+      <img src="${getImage(item["Ürün Adı"])}">
       <h4>${item["Ürün Adı"]}</h4>
       <p class="price">${item["Fiyat"]} TL</p>
     </div>`;
   });
+
   document.getElementById("urunler").innerHTML = html;
 }
 
@@ -128,6 +147,7 @@ document.getElementById("search").addEventListener("input", e=>{
   let val = e.target.value.toLowerCase();
   render(allData.filter(x=>x["Ürün Adı"].toLowerCase().includes(val)));
 });
+
 </script>
 
 </body>
