@@ -12,31 +12,51 @@ header {
   padding:15px;
   text-align:center;
   font-weight:bold;
-  font-size:18px;
+  font-size:16px;
 }
+.search {
+  padding:10px;
+}
+.search input {
+  width:100%;
+  padding:10px;
+  border-radius:8px;
+  border:1px solid #ccc;
+}
+.tabs {
+  display:flex;
+  overflow:auto;
+  gap:10px;
+  padding:10px;
+}
+.tab {
+  padding:8px 12px;
+  background:white;
+  border-radius:20px;
+  cursor:pointer;
+}
+.active {background:#0a7f2e; color:white;}
 .container {
   display:grid;
   grid-template-columns:repeat(2,1fr);
-  gap:12px;
-  padding:12px;
+  gap:10px;
+  padding:10px;
 }
 .card {
   background:white;
-  border-radius:12px;
+  border-radius:10px;
   padding:10px;
   text-align:center;
-  box-shadow:0 2px 5px rgba(0,0,0,0.1);
 }
 .card img {
   width:100%;
-  height:110px;
+  height:100px;
   object-fit:cover;
   border-radius:8px;
 }
 .price {
   color:#0a7f2e;
   font-weight:bold;
-  font-size:16px;
 }
 </style>
 </head>
@@ -47,33 +67,68 @@ header {
 BATMAN İL JANDARMA KOMUTANLIĞI AİLE KANTİNİ ÜRÜN FİYAT LİSTESİ
 </header>
 
-<div class="container">
-
-<div class="card">
-<img src="https://source.unsplash.com/200x200/?cola">
-<h4>Cola</h4>
-<p class="price">25 TL</p>
+<div class="search">
+<input type="text" id="search" placeholder="Ürün ara...">
 </div>
 
-<div class="card">
-<img src="https://source.unsplash.com/200x200/?chips">
-<h4>Cips</h4>
-<p class="price">20 TL</p>
+<div class="tabs">
+<div class="tab active" onclick="filterCategory('hepsi')">Hepsi</div>
+<div class="tab" onclick="filterCategory('içecek')">İçecek</div>
+<div class="tab" onclick="filterCategory('yiyecek')">Yiyecek</div>
+<div class="tab" onclick="filterCategory('atıştırmalık')">Atıştırmalık</div>
 </div>
 
-<div class="card">
-<img src="https://source.unsplash.com/200x200/?toast">
-<h4>Tost</h4>
-<p class="price">40 TL</p>
-</div>
+<div class="container" id="urunler"></div>
 
-<div class="card">
-<img src="https://source.unsplash.com/200x200/?biscuit">
-<h4>Bisküvi</h4>
-<p class="price">10 TL</p>
-</div>
+<script>
+const url = "https://opensheet.elk.sh/1EgBQfRbunhviZC709M9NX292kO3O1qtGbc2Xmoblkxg/1";
 
-</div>
+let allData = [];
+
+fetch(url)
+.then(res => res.json())
+.then(data => {
+  allData = data.map(item => {
+    let kategori = "diğer";
+    let ad = item["Ürün Adı"].toLowerCase();
+
+    if (ad.includes("cola") || ad.includes("su") || ad.includes("ayran")) kategori = "içecek";
+    else if (ad.includes("tost") || ad.includes("ekmek")) kategori = "yiyecek";
+    else if (ad.includes("cips") || ad.includes("bisküvi")) kategori = "atıştırmalık";
+
+    return {...item, kategori};
+  });
+
+  render(allData);
+});
+
+function render(data){
+  let html = "";
+  data.forEach(item => {
+    html += `
+    <div class="card">
+      <img src="https://source.unsplash.com/200x200/?${item["Ürün Adı"]}">
+      <h4>${item["Ürün Adı"]}</h4>
+      <p class="price">${item["Fiyat"]} TL</p>
+    </div>`;
+  });
+  document.getElementById("urunler").innerHTML = html;
+}
+
+function filterCategory(cat){
+  document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
+  event.target.classList.add("active");
+
+  if(cat==="hepsi") return render(allData);
+
+  render(allData.filter(x=>x.kategori===cat));
+}
+
+document.getElementById("search").addEventListener("input", e=>{
+  let val = e.target.value.toLowerCase();
+  render(allData.filter(x=>x["Ürün Adı"].toLowerCase().includes(val)));
+});
+</script>
 
 </body>
 </html>
