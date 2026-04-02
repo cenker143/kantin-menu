@@ -6,7 +6,12 @@
 <title>Kantin Menü</title>
 
 <style>
-body {font-family: Arial; background:#f5f5f5; margin:0;}
+body {
+  font-family: Arial;
+  background:#f5f5f5;
+  margin:0;
+}
+
 header {
   background:white;
   padding:15px;
@@ -14,44 +19,58 @@ header {
   font-weight:bold;
   font-size:16px;
 }
+
 .search {
   padding:10px;
 }
+
 .search input {
   width:100%;
   padding:10px;
   border-radius:8px;
   border:1px solid #ccc;
 }
+
 .tabs {
   display:flex;
   gap:10px;
   padding:10px;
 }
+
 .tab {
   padding:8px 12px;
   background:white;
   border-radius:20px;
   cursor:pointer;
 }
-.active {background:#0a7f2e; color:white;}
+
+.active {
+  background:#0a7f2e;
+  color:white;
+}
+
 .container {
   display:grid;
   grid-template-columns:repeat(2,1fr);
   gap:10px;
   padding:10px;
 }
+
 .card {
   background:white;
   border-radius:10px;
   padding:10px;
   text-align:center;
 }
+
 .card img {
   width:100%;
-  height:100px;
+  height:120px;
   object-fit:contain;
+  background:white;
+  padding:5px;
 }
+
 .price {
   color:#0a7f2e;
   font-weight:bold;
@@ -107,25 +126,13 @@ fetch(url)
   render(allData);
 });
 
-function getImage(name){
-  name = name.toLowerCase();
-
-  if(name.includes("kulak")) return "https://cdn-icons-png.flaticon.com/512/727/727245.png";
-  if(name.includes("power") || name.includes("mah")) return "https://cdn-icons-png.flaticon.com/512/1048/1048946.png";
-  if(name.includes("sucuk")) return "https://cdn-icons-png.flaticon.com/512/1046/1046784.png";
-  if(name.includes("şarj") || name.includes("kablo")) return "https://cdn-icons-png.flaticon.com/512/3659/3659899.png";
-  if(name.includes("cola")) return "https://cdn-icons-png.flaticon.com/512/3050/3050158.png";
-
-  return "https://via.placeholder.com/150";
-}
-
 function render(data){
   let html = "";
 
   data.forEach(item => {
     html += `
     <div class="card">
-      <img src="${getImage(item["Ürün Adı"])}">
+      <img src="logo.jpg">
       <h4>${item["Ürün Adı"]}</h4>
       <p class="price">${item["Fiyat"]} TL</p>
     </div>`;
