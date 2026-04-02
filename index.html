@@ -8,72 +8,56 @@
 <style>
 body {
   font-family: Arial;
-  background:#f5f5f5;
-  margin:0;
+  background: #f5f5f5;
+  margin: 0;
 }
 
 header {
-  background:white;
-  padding:15px;
-  text-align:center;
-  font-weight:bold;
-  font-size:16px;
+  background: white;
+  padding: 15px;
+  text-align: center;
+  font-weight: bold;
+  font-size: 18px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 
-.search {
-  padding:10px;
-}
-
-.search input {
-  width:100%;
-  padding:10px;
-  border-radius:8px;
-  border:1px solid #ccc;
-}
-
-.tabs {
-  display:flex;
-  gap:10px;
-  padding:10px;
-}
-
-.tab {
-  padding:8px 12px;
-  background:white;
-  border-radius:20px;
-  cursor:pointer;
-}
-
-.active {
-  background:#0a7f2e;
-  color:white;
+input {
+  width: 90%;
+  margin: 15px auto;
+  display: block;
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
 }
 
 .container {
-  display:grid;
-  grid-template-columns:repeat(2,1fr);
-  gap:10px;
-  padding:10px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill,minmax(160px,1fr));
+  gap: 10px;
+  padding: 10px;
 }
 
 .card {
-  background:white;
-  border-radius:10px;
-  padding:10px;
-  text-align:center;
+  background: white;
+  border-radius: 15px;
+  padding: 10px;
+  text-align: center;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
 }
 
 .card img {
-  width:100%;
-  height:120px;
-  object-fit:contain;
-  background:white;
-  padding:5px;
+  width: 100%;
+  height: 120px;
+  object-fit: contain;
 }
 
-.price {
-  color:#0a7f2e;
-  font-weight:bold;
+.card h3 {
+  font-size: 14px;
+}
+
+.card p {
+  color: green;
+  font-weight: bold;
 }
 </style>
 </head>
@@ -81,78 +65,51 @@ header {
 <body>
 
 <header>
-BATMAN İL JANDARMA KOMUTANLIĞI AİLE KANTİNİ ÜRÜN FİYAT LİSTESİ
+BATMAN İL JANDARMA KOMUTANLIĞI  
+AİLE KANTİNİ ÜRÜN FİYAT LİSTESİ
 </header>
 
-<div class="search">
 <input type="text" id="search" placeholder="Ürün ara...">
-</div>
-
-<div class="tabs">
-<div class="tab active" onclick="filterCategory('hepsi')">Hepsi</div>
-<div class="tab" onclick="filterCategory('içecek')">İçecek</div>
-<div class="tab" onclick="filterCategory('yiyecek')">Yiyecek</div>
-<div class="tab" onclick="filterCategory('atıştırmalık')">Atıştırmalık</div>
-<div class="tab" onclick="filterCategory('diğer')">Diğer</div>
-</div>
 
 <div class="container" id="urunler"></div>
 
 <script>
 
-const url = "https://opensheet.elk.sh/1EgBQfRbunhviZC709M9NX292kO3O1qtGbc2Xmoblkxg/Sheet1";
+const sheetURL = "https://opensheet.elk.sh/XXXX/Sheet1"; // BURAYA SHEET ID
 
-let allData = [];
+let urunler = [];
 
-fetch(url)
+fetch(sheetURL)
 .then(res => res.json())
 .then(data => {
-
-  allData = data.map(item => {
-
-    let ad = item["Ürün Adı"]?.toLowerCase() || "";
-    let kategori = "diğer";
-
-    if(ad.includes("cola") || ad.includes("su") || ad.includes("ayran"))
-      kategori = "içecek";
-    else if(ad.includes("tost") || ad.includes("ekmek") || ad.includes("sucuk"))
-      kategori = "yiyecek";
-    else if(ad.includes("cips") || ad.includes("bisküvi") || ad.includes("çikolata"))
-      kategori = "atıştırmalık";
-
-    return {...item, kategori};
-  });
-
-  render(allData);
+  urunler = data;
+  goster(data);
 });
 
-function render(data){
+function goster(data) {
   let html = "";
 
   data.forEach(item => {
     html += `
-    <div class="card">
-      <img src="logo.jpg">
-      <h4>${item["Ürün Adı"]}</h4>
-      <p class="price">${item["Fiyat"]} TL</p>
-    </div>`;
+      <div class="card">
+        <img src="${item["Foto"] || 'logo.jpg'}">
+        <h3>${item["Ürün Adı"]}</h3>
+        <p>${item["Fiyat"]} ₺</p>
+      </div>
+    `;
   });
 
   document.getElementById("urunler").innerHTML = html;
 }
 
-function filterCategory(cat){
-  document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
-  event.target.classList.add("active");
+document.getElementById("search").addEventListener("input", function() {
+  const aranan = this.value.toLowerCase();
 
-  if(cat==="hepsi") return render(allData);
+  const filtre = urunler.filter(x =>
+    x["Ürün Adı"].toLowerCase().includes(aranan)
+  );
 
-  render(allData.filter(x=>x.kategori===cat));
-}
-
-document.getElementById("search").addEventListener("input", e=>{
-  let val = e.target.value.toLowerCase();
-  render(allData.filter(x=>x["Ürün Adı"].toLowerCase().includes(val)));
+  goster(filtre);
 });
 
 </script>
